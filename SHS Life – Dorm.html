@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SHS Life – Dorm</title>
+<style>
+:root{--bg:#1b1f3a;--card:#ffffffee;--ink:#1b1f3a;--acc:#ff8a1f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10122a}}
+:root[data-theme="dark"]{--bg:#10122a}
+html,body{height:100%;margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;color:var(--ink)}
+#c{position:absolute;inset:0}
+canvas{display:block;touch-action:none}
+.ui{position:absolute;left:0;right:0;pointer-events:none;padding:8px 10px;box-sizing:border-box}
+#top{top:env(safe-area-inset-top,0px)}
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pill{background:var(--card);border-radius:999px;padding:5px 11px;font-weight:700;font-size:13px;pointer-events:auto;box-shadow:0 2px 6px #0004}
+.pill.btn{cursor:pointer}
+.sp{flex:1}
+#social{font-size:11px;color:#fff;margin-top:6px;opacity:.9}
+#tasks{margin-top:8px;display:flex;flex-direction:column;gap:6px;max-width:260px}
+.task{background:var(--card);border-left:5px solid var(--acc);border-radius:10px;padding:7px 10px;font-size:12.5px;font-weight:600;box-shadow:0 2px 6px #0004}
+.task small{display:block;font-weight:500;opacity:.7}
+#bottom{bottom:env(safe-area-inset-bottom,0px)}
+#stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 8px 64px}
+.bar{background:#0006;border-radius:999px;height:22px;position:relative;overflow:hidden;color:#fff;font-size:11px;font-weight:700}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:999px;transition:width .4s}
+.bar span{position:relative;line-height:22px;padding-left:9px;text-shadow:0 1px 2px #0008}
+#avatar{position:absolute;left:12px;bottom:70px;width:48px;height:48px;border-radius:50%;background:var(--acc);border:3px solid #fff;display:grid;place-items:center;font-size:24px;box-shadow:0 2px 8px #0006}
+#nav{display:flex;gap:6px;pointer-events:auto}
+#nav div{flex:1;background:var(--card);text-align:center;padding:9px 0;border-radius:14px;font-size:12px;font-weight:800;cursor:pointer}
+#nav div.on{background:var(--acc);color:#fff}
+#toast{position:absolute;left:50%;top:45%;transform:translate(-50%,0);background:#000b;color:#fff;padding:8px 14px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;transition:.3s;pointer-events:none;text-align:center;max-width:80%}
+#hint{position:absolute;right:10px;top:84px;color:#fff;font-size:11px;opacity:.7;text-align:right;pointer-events:none}
+
+#ob{position:fixed;inset:0;z-index:9;background:linear-gradient(160deg,#1b1f3a,#3a2a6a);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom))}
+#ob.off{display:none}
+#obc{background:#fff;border-radius:22px;padding:20px;width:100%;max-width:400px;max-height:100%;overflow:auto;box-shadow:0 10px 40px #0007;color:#1b1f3a}
+#obc h2{margin:6px 0 4px;font-size:22px}#obc p{margin:0 0 14px;font-size:14px;opacity:.8;line-height:1.4}
+.stp{font-size:12px;font-weight:800;color:var(--acc);letter-spacing:.5px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.lnk{background:none;border:0;font-weight:700;font-size:13px;color:#1b1f3a99;cursor:pointer;padding:4px}
+.opt{display:block;width:100%;text-align:left;margin:7px 0;padding:13px 14px;border-radius:14px;border:2px solid #e3e3ee;background:#fff;font-size:15px;font-weight:700;cursor:pointer;color:#1b1f3a}
+.opt:active,.opt.sel{border-color:var(--acc);background:#fff3e6}
+.go{display:block;width:100%;margin-top:12px;padding:14px;border-radius:14px;border:0;background:var(--acc);color:#fff;font-size:16px;font-weight:800;cursor:pointer}
+#obc input{width:100%;box-sizing:border-box;padding:13px;border-radius:14px;border:2px solid #e3e3ee;font-size:16px;font-weight:700;color:#1b1f3a;background:#fff}
+.g{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}
+.g div{aspect-ratio:1/1.1;border-radius:10px;background:#dfe6f5;display:grid;place-items:center;font-size:11px;font-weight:800;color:#5c7fb8}
+.g div.me{background:var(--acc);color:#fff;box-shadow:0 0 0 3px #ffb878}
+.say{background:#f1f3fb;border-radius:14px;padding:12px;font-size:14px;font-weight:600}
+#ob{flex-direction:column;gap:6px}#pv{width:100%;max-width:400px;height:200px;flex:none}#pv canvas{width:100%!important;height:100%!important}
+#obc{max-height:calc(100% - 206px)}
+.sw{display:flex;gap:9px;margin:4px 0 12px}.sw i{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #d5d5e5;cursor:pointer}.sw i.sel{box-shadow:0 0 0 3px var(--acc)}
+.lb{font-size:12px;font-weight:800;opacity:.6;margin:6px 0 2px;text-transform:uppercase}
+.two{display:flex;gap:7px}.two .opt{margin:3px 0;text-align:center;padding:10px 4px;font-size:14px}
+.big{font-size:44px;font-weight:900;text-align:center;color:var(--acc);margin:0}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.letter{border:2px dashed #b9a47a;background:#fffaf0;border-radius:12px;padding:14px;font-size:13.5px;line-height:1.5}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;color:#fff;font-weight:800;font-size:12px}
+</style></head><body>
+<div id="c"></div>
+<div class="ui" id="top">
+ <div class="row"><div class="pill" id="clock">6:00 AM</div><div class="pill" id="mood">😊</div><div class="pill btn" id="snd">🔊</div><div class="sp"></div><div class="pill">₵ <span id="cash">50</span> <span class="btn" id="add" style="color:var(--acc);cursor:pointer">＋</span></div></div>
+ <div id="social">👥 <b id="vis">1,284</b> visits today · 🟢 <b id="onl">37</b> online</div>
+ <div id="tasks"></div>
+</div>
+<div id="hint">drag to rotate · scroll to zoom<br>tap bed, desk, bucket, Kwame</div>
+<div id="toast"></div>
+<div id="avatar">🧑🏾‍🎓</div>
+<div class="ui" id="bottom">
+ <div id="stats"></div>
+ <div id="nav"><div class="on">🛏️ Dorm</div><div>🍲 Canteen</div><div>🗺️ School Map</div><div>📱 Phone</div></div>
+</div>
+<div id="ob"><div id="pv"></div><div id="obc"></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const S={Academics:40,Energy:70,Social:30,Discipline:50},COL={Academics:'#4aa3ff',Energy:'#ffc83d',Social:'#ff6fae',Discipline:'#52d273'};
+let cash=50,mins=360;
+const $=id=>document.getElementById(id);
+function drawStats(){$('stats').innerHTML=Object.keys(S).map(k=>`<div class="bar"><i style="width:${S[k]}%;background:${COL[k]}"></i><span>${k} ${Math.round(S[k])}</span></div>`).join('');
+ const e=S.Energy;$('mood').textContent=e>60?'😊':e>30?'😐':'😴'}
+function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,1400)}
+const TASKS={bed:['Rest up — tap your bunk','Recover energy'],desk:['Prep time — tap your desk','Boost academics'],bucket:['Fetch water — tap the bucket','Keep discipline up'],kwame:['Say hi — tap Kwame','Make a friend']};
+function drawTasks(){$('tasks').innerHTML=Object.values(TASKS).map(t=>`<div class="task">${t[0]}<small>${t[1]}</small></div>`).join('')}
+function tick(){mins=(mins+10)%1440;const h=Math.floor(mins/60),m=mins%60;$('clock').textContent=((h+11)%12+1)+':'+String(m).padStart(2,'0')+(h<12?' AM':' PM');
+ $('onl').textContent=30+Math.floor(Math.random()*20);}
+setInterval(tick,3000);
+$('add').onclick=()=>{cash+=10;$('cash').textContent=cash;toast('+₵10')};
+let sound=true;$('snd').onclick=()=>{sound=!sound;$('snd').textContent=sound?'🔊':'🔇'};
+document.querySelectorAll('#nav div').forEach(d=>d.onclick=()=>{if(d.textContent.includes('Dorm'))return;toast(d.textContent.slice(2)+' — coming soon')});
+drawStats();drawTasks();
+
+// ---- 3D ----
+const el=$('c'),W=()=>innerWidth,H=()=>innerHeight;
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;el.appendChild(R.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x1b1f3a);
+const cam=new THREE.PerspectiveCamera(40,1,.1,100);
+let ang=Math.PI/4,pol=0.95,dist=26;
+function setCam(){cam.position.set(Math.sin(ang)*Math.cos(pol-.5)*dist,Math.sin(pol)*dist*.75,Math.cos(ang)*Math.cos(pol-.5)*dist);cam.lookAt(0,1,0)}
+function resize(){R.setSize(W(),H());cam.aspect=W()/H();dist=Math.max(22,30*(0.62/(W()/H())>1?Math.min(1.5,0.62/(W()/H())):1));setCam();cam.updateProjectionMatrix()}
+addEventListener('resize',resize);
+scene.add(new THREE.HemisphereLight(0xffffff,0x556677,.75));
+const sun=new THREE.DirectionalLight(0xfff0d0,.8);sun.position.set(8,16,6);sun.castShadow=true;sun.shadow.camera.left=-12;sun.shadow.camera.right=12;sun.shadow.camera.top=12;sun.shadow.camera.bottom=-12;scene.add(sun);
+const mat=c=>new THREE.MeshLambertMaterial({color:c});
+function box(w,h,d,c,x,y,z,p){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;(p||scene).add(m);return m}
+box(11,.4,14.5,0xd9c7a3,0,-.2,0).userData={};
+box(11,5,.3,0xf2efe6,0,2.5,-7.4);box(.3,5,14.5,0xe9e4d4,-5.6,2.5,0);
+box(3,2.2,.1,0x9ad0ff,0,3,-7.2);box(.1,2.2,3,0x9ad0ff,-5.4,3,2.5); // windows
+box(11,.15,.35,0x7a5230,0,.1,-7.3);
+const pick=[];
+// bunk beds: 8 frames x 2 levels = 16 slots, 15 beds
+const you=Math.floor(Math.random()*15);let youG,youLvl,kwF;
+for(let f=0;f<8;f++){const c=f%2,r=Math.floor(f/2),x=c?2.6:-2.6,z=-5.4+r*2.5;
+ const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ [[-1.15,-.6],[1.15,-.6],[-1.15,.6],[1.15,.6]].forEach(p=>box(.12,2.9,.12,0x5a3a1b,p[0],1.45,p[1],g));
+ box(2.4,.08,.08,0x5a3a1b,0,2.9,-.6,g);box(2.4,.08,.08,0x5a3a1b,0,2.9,.6,g);
+ box(.08,.9,.08,0x5a3a1b,1.15,2.4,0,g);
+ for(let k=0;k<5;k++)box(.08,.06,1.2,0x8a5a2b,1.15+.0,.4+k*.5,.0,g).scale.set(1,1,.25); // ladder rungs
+ for(let l=0;l<2;l++){const i=f*2+l;if(i>14)continue;const mine=i===you,y=.5+l*1.4;
+  box(2.3,.14,1.15,0x6b4a2b,0,y,0,g);
+  const m=box(2.2,.22,1.05,mine?0xff8a1f:(l?0x7f8fc4:0x5c7fb8),0,y+.18,0,g);
+  const pl=box(.6,.16,.8,0xffffff,-.75,y+.37,0,g);
+  if(l)box(2.3,.3,.06,0x5a3a1b,0,y+.3,.58,g); // top bunk guard rail
+  if(mine){youG=g;youLvl=l;[m,pl].forEach(o=>{o.userData.act='bed';pick.push(o)})}}
+ if(f===you>>1)kwF=f^1;}
+const kwG={x:0,z:-5.4+(kwF>>1)*2.5};
+// Kwame
+function person(color,x,z){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+ const b=new THREE.Mesh(new THREE.CylinderGeometry(.32,.38,1.1,14),mat(color));b.position.y=.65;b.castShadow=true;g.add(b);
+ const h=new THREE.Mesh(new THREE.SphereGeometry(.3,14,14),mat(0x6b4226));h.position.y=1.5;h.castShadow=true;g.add(h);return g}
+const kwame=person(0x2ecc71,kwG.x,kwG.z);
+kwame.children.forEach(o=>{o.userData.act='kwame';pick.push(o)});
+// desk & bucket
+const desk=new THREE.Group();desk.position.set(4.3,0,6);scene.add(desk);
+box(1.8,.12,1,0x8a5a2b,0,1,0,desk);[[-.8,-.4],[.8,-.4],[-.8,.4],[.8,.4]].forEach(p=>box(.1,1,.1,0x5a3a1b,p[0],.5,p[1],desk));
+box(.7,.12,.5,0xe74c3c,0,1.1,0,desk);
+desk.children.forEach(o=>{o.userData.act='desk';pick.push(o)});
+const bk=new THREE.Group();bk.position.set(-4.4,0,6.2);scene.add(bk);
+const bm=new THREE.Mesh(new THREE.CylinderGeometry(.5,.38,.8,16),mat(0x2e86de));bm.position.y=.4;bm.castShadow=true;bk.add(bm);
+const wt=new THREE.Mesh(new THREE.CylinderGeometry(.44,.44,.02,16),mat(0x8ed1ff));wt.position.y=.78;bk.add(wt);
+bk.children.forEach(o=>{o.userData.act='bucket';pick.push(o)});
+// player
+const me=person(0xff8a1f,3.5,3.8);me.children[1].material=mat(0x4a2c16);
+let target=null;
+// marker ring above your bed
+const ring=new THREE.Mesh(new THREE.TorusGeometry(.35,.08,8,20),mat(0xffffff));ring.rotation.x=Math.PI/2;ring.position.set(youG.position.x,3.5,youG.position.z);scene.add(ring);
+// "YOU" label sprite
+const cv=document.createElement('canvas');cv.width=128;cv.height=64;const cx=cv.getContext('2d');cx.fillStyle='#ff8a1f';cx.beginPath();cx.roundRect?cx.roundRect(4,8,120,48,16):cx.rect(4,8,120,48);cx.fill();cx.fillStyle='#fff';cx.font='bold 34px sans-serif';cx.textAlign='center';cx.fillText('YOU',64,44);
+const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv)}));sp.scale.set(1.6,.8,1);sp.position.set(youG.position.x,4.3,youG.position.z);scene.add(sp);
+
+// interaction
+const ACT={
+ bed:()=>{S.Energy=Math.min(100,S.Energy+25);mins+=60;toast((youLvl?'🪜 Climbed to your top bunk':'🛏️ Bottom bunk')+' · Energy +25')},
+ desk:()=>{if(S.Energy<10)return toast('Too tired to study!');S.Academics=Math.min(100,S.Academics+15);S.Energy-=10;toast('📚 Prep done · Academics +15')},
+ bucket:()=>{S.Discipline=Math.min(100,S.Discipline+10);S.Energy-=5;toast('🪣 Fetched water · Discipline +10')},
+ kwame:()=>{S.Social=Math.min(100,S.Social+15);toast('💬 Kwame: "Eii, you dey!" · Social +15')}
+};
+const ray=new THREE.Raycaster(),mv=new THREE.Vector2();
+let drag=null,moved=0;
+const cvs=R.domElement;
+cvs.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};moved=0});
+addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;moved+=Math.abs(dx)+Math.abs(dy);ang-=dx*.006;pol=Math.max(.6,Math.min(1.35,pol+dy*.004));drag={x:e.clientX,y:e.clientY};setCam()});
+addEventListener('pointerup',e=>{if(!drag)return;drag=null;if(moved>6)return;
+ mv.set(e.clientX/W()*2-1,-(e.clientY/H())*2+1);ray.setFromCamera(mv,cam);const h=ray.intersectObjects(pick,false)[0];
+ if(h){const a=h.object.userData.act,p=h.object.parent===scene?h.object.position:h.object.parent.position;
+  target=a==='bed'?{x:p.x>0?p.x-1.8:p.x+1.8,z:p.z,a}:{x:p.x,z:p.z+1.4,a}}});
+cvs.addEventListener('wheel',e=>{dist=Math.max(14,Math.min(40,dist+e.deltaY*.02));setCam();e.preventDefault()},{passive:false});
+let t0=0;
+function loop(t){requestAnimationFrame(loop);const dt=Math.min(.05,(t-t0)/1000);t0=t;
+ if(target){const dx=target.x-me.position.x,dz=target.z-me.position.z,d=Math.hypot(dx,dz);
+  if(d<.15){const a=target.a;target=null;ACT[a]();drawStats();$('cash').textContent=cash}
+  else{me.position.x+=dx/d*Math.min(d,5*dt);me.position.z+=dz/d*Math.min(d,5*dt);me.position.y=Math.abs(Math.sin(t*.012))*.12}}
+ else me.position.y=0;
+ ring.position.y=3.5+Math.sin(t*.004)*.12;ring.rotation.z+=.03;
+ kwame.position.y=Math.abs(Math.sin(t*.003))*.05;
+ R.render(scene,cam)}
+resize();loop(0);
+
+// ---- Onboarding ----
+const SK=[0xf1c9a5,0xd9a066,0xa86b3f,0x7a4a2a,0x4a2c16],OF=[0xf4f4f4,0x3b7bd4,0x2ecc71,0xe74c3c];
+const ST={g:'M',skin:3,hair:0,outf:0,agg:12,school:'',cat:'',prog:'',house:'',nick:'',style:''};let step=0,RM='Kwame';
+const cy=(rt,rb,h,m,x,y,g)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,14),m);o.position.set(x,y,0);o.castShadow=true;g.add(o);return o};
+const sph=(r,m,x,y,z,g)=>{const o=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),m);o.position.set(x,y,z);o.castShadow=true;g.add(o);return o};
+function mk(c){const g=new THREE.Group(),sk=mat(SK[c.skin]),u=mat(OF[c.outf]),bl=mat(0x2d3a8c),hr=mat(0x1a1209),F=c.g=='F';
+ if(F){cy(.3,.52,.65,bl,0,.75,g);[-.13,.13].forEach(x=>cy(.07,.07,.5,sk,x,.25,g))}else[-.14,.14].forEach(x=>cy(.1,.1,.95,bl,x,.48,g));
+ cy(.3,.34,.8,u,0,1.35,g);[-.43,.43].forEach(x=>{const a=cy(.07,.07,.7,sk,x,1.3,g);a.rotation.z=x>0?-.15:.15});
+ sph(.33,sk,0,1.98,0,g);[-.11,.11].forEach(x=>sph(.04,mat(0x111111),x,2.02,.3,g));
+ const m=new THREE.Mesh(new THREE.TorusGeometry(.07,.015,6,12,Math.PI),mat(0x8a2a2a));m.position.set(0,1.93,.32);m.rotation.z=Math.PI;g.add(m);
+ if(c.hair==0)sph(.35,hr,0,2.03,-.04,g).scale.set(1,.7,1);
+ if(c.hair==1)sph(.48,hr,0,2.07,-.06,g);
+ if(c.hair==2){sph(.35,hr,0,2.03,-.04,g).scale.set(1,.7,1);if(F)[-.3,.3].forEach(x=>sph(.15,hr,x,2.3,0,g));else cy(.2,.22,.3,hr,0,2.35,g)}
+ return g}
+// preview
+const PR=new THREE.WebGLRenderer({antialias:true,alpha:true});PR.setSize(300,200);$('pv').appendChild(PR.domElement);
+const ps=new THREE.Scene(),pc=new THREE.PerspectiveCamera(35,1.5,.1,50);pc.position.set(0,2.4,6.2);pc.lookAt(0,1.2,0);
+ps.add(new THREE.HemisphereLight(0xffffff,0x667799,.9));const pl=new THREE.DirectionalLight(0xffffff,.7);pl.position.set(3,5,4);ps.add(pl);
+const disc=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.1,32),mat(0xff8a1f));disc.position.y=-.05;ps.add(disc);
+let pch;function rb(){if(pch)ps.remove(pch);pch=mk(ST);ps.add(pch)}
+rb();let alive=true;(function pl2(t){if(!alive)return;requestAnimationFrame(pl2);if(!pch)return;pch.rotation.y+=.015;pch.position.y=Math.abs(Math.sin(t*.003))*.06;PR.render(ps,pc)})(0);
+const SCH={A:{M:["Prempeh College","Mfantsipim School","Opoku Ware School"],F:["Wesley Girls' High","Holy Child School","Aburi Girls' SHS"]},B:{M:["Ghana National College","St. Peter's SHS"],F:["Mfantsiman Girls' SHS","Aggrey Memorial SHS"]},C:{M:["Sekyere Community SHS","Nsawam Day SHS"],F:["Akim Community SHS","Mampong Girls' SHS"]}};
+const HOU={M:[["Aggrey House",0x3b7bd4],["Nkrumah House",0xe74c3c],["Busia House",0x2ecc71],["Danquah House",0x9b59b6]],F:[["Yaa Asantewaa House",0xe84a8a],["Efua Sutherland House",0xf39c12],["Esther Ocloo House",0x16a085],["Abena House",0x8e5ad8]]};
+const PRG=["🔬 General Science","📖 General Arts","💼 Business","🎨 Visual Arts","🍳 Home Economics","🌾 Agricultural Science"];
+const NICK=["Sarge","Small Chops","Prof","Cheddar","Gentle","Kobo","Skinny","Baba Dee","Zuzu","Tall Boy","Chairman","Jollof"];
+const STY=[["📚 Book worm","Academics +15, Social −5",{Academics:15,Social:-5}],["🎉 Social butterfly","Social +20, Discipline −5",{Social:20,Discipline:-5}],["📏 By the book","Discipline +20, Energy −5",{Discipline:20,Energy:-5}],["💪 Hustler","Energy +20, Academics −5",{Energy:20,Academics:-5}]];
+const E=$('obc'),cat=a=>a<=12?'A':a<=20?'B':'C',CN={A:'Category A',B:'Category B',C:'Category C'};
+const sw=(arr,k)=>`<div class="sw">${arr.map((c,i)=>`<i class="${ST[k]===i?'sel':''}" style="background:#${c.toString(16).padStart(6,'0')}" onclick="set('${k}',${i})"></i>`).join('')}</div>`;
+function set(k,v){ST[k]=v;if(k=='g'){ST.hair=0}rb();draw()}
+function head(t,p){return `<div class="top"><span class="stp">STEP ${step+1} OF 8</span><span>${step?'<button class="lnk" onclick="goBack()">← Back</button>':''}<button class="lnk" onclick="rs()">Restart</button></span></div><h2>${t}</h2><p>${p}</p>`}
+function opts(list,key){return list.map(o=>`<button class="opt ${ST[key]===o?'sel':''}" onclick="pk('${key}',this.dataset.v)" data-v="${o}">${o}</button>`).join('')}
+function pk(k,v){ST[k]=v;step++;draw()}
+function goBack(){step--;draw()}
+function rs(){Object.assign(ST,{g:'M',skin:3,hair:0,outf:0,agg:12,school:'',prog:'',house:'',nick:'',style:''});step=0;rb();draw()}
+function nx(){step++;draw()}
+function sub(v){ST.agg=+v;$('ag').textContent=v;$('ct').textContent=CN[cat(+v)]+' school'}
+function place(){const L=SCH[cat(ST.agg)][ST.g];ST.school=L[Math.floor(Math.random()*L.length)];nx()}
+function rnick(){ST.nick=NICK[Math.floor(Math.random()*NICK.length)];draw()}
+function draw(){const G=ST.g,F=G=='F';let h='';
+ if(step==0)h=head('Who are you in this story?','Customise your character. This decides your house and boarding placement.')+`<div class="two"><button class="opt ${F?'':'sel'}" onclick="set('g','M')">👦🏾 Male</button><button class="opt ${F?'sel':''}" onclick="set('g','F')">👧🏾 Female</button></div><div class="lb">Skin tone</div>${sw(SK,'skin')}<div class="lb">Hair</div><div class="two">${['Low cut',"Afro",F?'Buns':'High-top'].map((n,i)=>`<button class="opt ${ST.hair==i?'sel':''}" onclick="set('hair',${i})">${n}</button>`).join('')}</div><div class="lb">Shirt colour</div>${sw(OF,'outf')}<button class="go" onclick="nx()">Looks good →</button>`;
+ if(step==1)h=head('Your BECE results','Slide to set your aggregate. Lower is better!')+`<p class="big" id="ag">${ST.agg}</p><input type="range" min="6" max="30" value="${ST.agg}" oninput="sub(this.value)"><p style="text-align:center;font-weight:800" id="ct">${CN[cat(ST.agg)]} school</p><button class="go" onclick="place()">See my placement</button>`;
+ if(step==2){const c=cat(ST.agg);h=head('Placement result 🎉',`With aggregate ${ST.agg}, you qualify for ${CN[c]}.`)+`<div class="letter" style="text-align:center"><b style="font-size:20px">${ST.school}</b><br>Placed as a boarding student</div><button class="go" onclick="nx()">Continue</button>`}
+ if(step==3)h=head('Pick your programme','What will you study at '+ST.school+'?')+opts(PRG,'prog');
+ if(step==4)h=head('Admission letter ✉️','')+`<div class="letter"><b>${ST.school.toUpperCase()}</b><br>Dear Candidate (BECE aggregate ${ST.agg}),<br>You are admitted to <b>SHS 1</b> to read <b>${ST.prog.slice(3)}</b> as a boarder. Report with your trunk, chop box and bucket.<br><br><i>— The Headmaster</i></div><button class="go" onclick="nx()">Report to school</button>`;
+ if(step==5){if(!ST.house){const x=HOU[G][Math.floor(Math.random()*4)];ST.house=x[0];ST.hc=x[1]}
+  h=head('Your house','Seniors are waiting at the gate.')+`<div style="margin-bottom:10px"><span class="badge" style="background:#${ST.hc.toString(16).padStart(6,'0')}">${ST.house}</span></div><div class="say">👨🏾‍🎓 Senior ${F?'Efua':'Kofi'}: "Freshers! Welcome to ${ST.house}!"<br><br>👩🏾‍🎓 Senior ${F?'Ama':'Yaw'}: "Don't worry, we'll show you the ropes."</div><button class="go" onclick="nx()">Meet the house</button>`}
+ if(step==6)h=head('What do they call you?','Type your own nickname or let the seniors decide.')+`<input id="nk" maxlength="14" placeholder="e.g. Sarge" value="${ST.nick}"><button class="opt" style="margin-top:10px;text-align:center" onclick="ST.nick=$('nk').value;rnick()">🎲 Let the seniors pick</button>${ST.nick?`<div class="say" style="margin-top:6px">👨🏾‍🎓 "From today you are <b>${ST.nick}</b>!"</div>`:''}<button class="go" onclick="ST.nick=$('nk').value.trim()||ST.nick||'Newbie';nx()">Next</button>`;
+ if(step==7){let c='';for(let i=0;i<15;i++)c+=`<div class="${i===you?'me':''}">${i===you?'YOU':i+1}</div>`;
+  h=head('Your dorm','15 beds, bunks in rows.')+`<div class="g">${c}</div><div class="say">🧑🏾 ${RMn()}: "Fourteen of us for this room, ${ST.nick}. Your bed is the orange one."</div><div class="lb" style="margin-top:12px">How will you live as a fresher?</div>${STY.map((x,i)=>`<button class="opt ${ST.style==i?'sel':''}" onclick="ST.style=${i};draw()">${x[0]}<br><small style="font-weight:500;opacity:.7">${x[1]}</small></button>`).join('')}<button class="go" ${ST.style===''?'disabled style="opacity:.4"':''} onclick="start()">Enter the dorm</button>`}
+ E.innerHTML=h}
+function RMn(){return ST.g=='F'?'Abena':'Kwame'}
+function start(){RM=RMn();alive=false;$('ob').classList.add('off');
+ const o=STY[ST.style][2];for(const k in o)S[k]=Math.max(0,Math.min(100,S[k]+o[k]));drawStats();
+ $('avatar').textContent=ST.g=='F'?'👧🏾':'👦🏾';
+ me.clear();const ch=mk(ST);ch.scale.setScalar(.8);me.add(ch);
+ cx.clearRect(0,0,128,64);cx.fillStyle='#ff8a1f';cx.beginPath();cx.rect(4,8,120,48);cx.fill();cx.fillStyle='#fff';cx.font='bold 26px sans-serif';cx.textAlign='center';cx.fillText(ST.nick.slice(0,8),64,41);sp.material.map.needsUpdate=true;
+ kwame.children[0].material.color.set(ST.g=='F'?0x8e5ad8:0x2ecc71);
+ TASKS.kwame[0]='Say hi — tap '+RM;drawTasks();
+ ACT.kwame=()=>{S.Social=Math.min(100,S.Social+15);toast('💬 '+RM+': "Eii, '+ST.nick+'!" · Social +15')};
+ toast('Welcome, '+ST.nick+' of '+ST.house)}
+rb();draw();
+</script>
+</body></html>
